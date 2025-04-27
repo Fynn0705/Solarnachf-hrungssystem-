@@ -11,7 +11,6 @@ from time import sleep, ticks_ms, ticks_diff
 import network
 import onewire, ds18x20
 from umqtt.simple import MQTTClient
-import time
 from ina226 import INA226
 
 # WLAN-Konfiguration
@@ -33,58 +32,59 @@ MQTT_TOPIC_LDR_RIGHT = b"solar/ldr/right"
 MQTT_TOPIC_LDR_FRONT = b"solar/ldr/front"
 MQTT_TOPIC_LDR_BACK = b"solar/ldr/back"
 MQTT_TOPIC_AUTOMODE = b"solar/auto_control"
+WIND_ALARM_TOPIC = b"solar/wind/alarm"
 
-MAX_WIND_SPEED = 30.0  # km/h Grenze
+MAX_WIND_SPEED = 30.0
+WIND_ALARM_THRESHOLD = 40.0
 
+# Zeitstempel
 last_sensor_time = ticks_ms()
 
-# Temperatursensor DS18B20
+# DS18B20 Temperatursensor
 ds_pin = Pin(41)
 ds_sensor = ds18x20.DS18X20(onewire.OneWire(ds_pin))
 roms = ds_sensor.scan()
 
 # LDRs
-LDR_LEFT = ADC(2)
-LDR_RIGHT = ADC(4)
-LDR_FRONT = ADC(20)
-LDR_BACK = ADC(19)
+LDR_LEFT = ADC(18)
+LDR_RIGHT = ADC(19)
+LDR_FRONT = ADC(2)
+LDR_BACK = ADC(4)
 
-# BTS7960 Steuerung (RPWM/LPWM)
-RPWM_X = Pin(14, Pin.OUT)
-LPWM_X = Pin(12, Pin.OUT)
-RPWM_Y = Pin(13, Pin.OUT)
-LPWM_Y = Pin(11, Pin.OUT)
+# BTS7960 Steuerung
+RPWM_X = Pin(13, Pin.OUT)
+LPWM_X = Pin(11, Pin.OUT)
+RPWM_Y = Pin(12, Pin.OUT)
+LPWM_Y = Pin(14, Pin.OUT)
 
-# Stromsensor
-SCT_PIN = ADC(3)
-
-# Wind-Sensor (Reedkontakt)
-WIND_PIN = Pin(36, Pin.IN, Pin.PULL_UP)
+# Wind-Sensor
+WIND_PIN = Pin(21, Pin.IN, Pin.PULL_UP)
 wind_count = 0
+last_wind_time = 0
 
 def wind_callback(pin):
-    global wind_count
-    wind_count += 1
+    global wind_count, last_wind_time
+    now = ticks_ms()
+    if ticks_diff(now, last_wind_time) > 50:
+        wind_count += 1
+        last_wind_time = now
 
 WIND_PIN.irq(trigger=Pin.IRQ_FALLING, handler=wind_callback)
 
 def calculate_wind_speed(pulses, interval_s):
-    rpm = pulses * (60 / interval_s)
-    kmh = rpm * 2.4  # Kalibrierfaktor
+    rpm = pulses * (30 / interval_s)
+    kmh = rpm * 0.1
     return kmh
 
-# I2C für AHT10 (SDA 1, SCL 0)
+# I2C und Sensoren initialisieren
 i2c = machine.I2C(scl=Pin(1), sda=Pin(0), freq=100000)
 AHT10_ADDR = 0x38
-
-# AHT10 initialisieren
 i2c.writeto(AHT10_ADDR, bytearray([0xE1, 0x08, 0x00]))
 sleep(0.05)
 
-# INA226 Setup
 ina226 = INA226(i2c, 0x40)
 
-# WLAN verbinden
+# WLAN-Verbindung
 wlan = network.WLAN(network.STA_IF)
 wlan.active(True)
 if not wlan.isconnected():
@@ -99,9 +99,18 @@ if not wlan.isconnected():
         print("WLAN verbunden, IP-Adresse:", wlan.ifconfig()[0])
     else:
         print("WLAN-Verbindung fehlgeschlagen!")
+        machine.reset()
 
-# MQTT
-client = MQTTClient(MQTT_CLIENT_ID, MQTT_SERVER)
+# MQTT-Verbindung
+def mqtt_connect():
+    global client
+    client = MQTTClient(MQTT_CLIENT_ID, MQTT_SERVER)
+    client.set_callback(mqtt_callback)
+    client.connect()
+    client.subscribe(MQTT_TOPIC_COMMAND + b"/#")
+    client.subscribe(MQTT_TOPIC_AUTOMODE)
+    print("MQTT verbunden.")
+
 auto_mode = True
 wind_speed = 0.0
 
@@ -145,13 +154,9 @@ def mqtt_callback(topic, msg):
     elif topic == b"solar/command/move/y/down":
         move_actuator(RPWM_Y, LPWM_Y, "retract", duration=10)
 
-client.set_callback(mqtt_callback)
-client.connect()
-client.subscribe(MQTT_TOPIC_COMMAND + b"/#")
-client.subscribe(MQTT_TOPIC_AUTOMODE)
-print("MQTT verbunden.")
+mqtt_connect()
 
-# Funktion zum Auslesen von Temperatur und Feuchtigkeit (AHT10)
+# AHT10 auslesen
 def read_aht10():
     try:
         i2c.writeto(AHT10_ADDR, b'\xAC\x33\x00')
@@ -171,24 +176,39 @@ def read_aht10():
         print("Temp:", temp, "°C  Feuchte:", feuchte, "%")
         client.publish(MQTT_TOPIC_TEMPERATURE, str(temp))
         client.publish(MQTT_TOPIC_HUMIDITY, str(feuchte))
-    except:
-        print("Fehler beim Auslesen AHT10")
+    except Exception as e:
+        print("Fehler beim Auslesen AHT10:", e)
 
 # Hauptschleife
 while True:
-    client.check_msg()
+    # WLAN prüfen
+    if not wlan.isconnected():
+        print("WLAN-Verbindung verloren, Neustart...")
+        sleep(5)
+        machine.reset()
+
+    # MQTT prüfen
+    try:
+        client.check_msg()
+    except Exception as e:
+        print("MQTT-Verbindung verloren:", e)
+        sleep(5)
+        machine.reset()
 
     current_time = ticks_ms()
+
     if ticks_diff(current_time, last_sensor_time) >= 10_000:
+        # DS18B20 Temperatur
         for rom in roms:
             temp = ds_sensor.read_temp(rom)
             print(f"Temperatur DS18B20: {temp:.2f}°C")
             client.publish(MQTT_TOPIC_TEMPERATURE, f"{temp:.2f}")
 
+        # INA226 Werte
         try:
-            voltage = ina226.bus_voltage         # Spannung in Volt
-            current_ina = ina226.current / 1000  # Strom in Ampere (mA / 1000)
-            power = ina226.power / 1000         # Leistung in Watt (mW / 1000)
+            voltage = ina226.bus_voltage
+            current_ina = ina226.current / 1000
+            power = ina226.power / 1000
 
             print(f"INA226 - Spannung: {voltage:.2f} V, Strom: {current_ina:.2f} A, Leistung: {power:.2f} W")
             client.publish(MQTT_TOPIC_VOLTAGE, f"{voltage:.2f}")
@@ -197,14 +217,23 @@ while True:
         except Exception as e:
             print("Fehler beim INA226:", e)
 
+        # Wind
         wind_speed = calculate_wind_speed(wind_count, 10)
         print(f"Windgeschwindigkeit: {wind_speed:.2f} km/h")
         client.publish(MQTT_TOPIC_WIND, f"{wind_speed:.2f}")
-        wind_count = 0
 
+        if wind_speed > WIND_ALARM_THRESHOLD:
+            print("⚠️ STURMALARM! Wind zu stark:", wind_speed)
+            client.publish(WIND_ALARM_TOPIC, f"ALARM: {wind_speed:.2f} km/h")
+            auto_mode = False
+            move_actuator(RPWM_X, LPWM_X, "retract", duration=5)
+            move_actuator(RPWM_Y, LPWM_Y, "retract", duration=5)
+
+        wind_count = 0
         read_aht10()
         last_sensor_time = current_time
 
+    # LDRs
     l_left = LDR_LEFT.read_u16()
     l_right = LDR_RIGHT.read_u16()
     l_front = LDR_FRONT.read_u16()
