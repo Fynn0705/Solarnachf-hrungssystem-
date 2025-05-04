@@ -1,9 +1,10 @@
-#Automatisches Nachführungssystem für ein Solarpanel, das durch Uhrzeiten und Lichtstärken Sensoren die Optimale Ausrichtung des Solarpanels findet
-#und damit den Maximalen Energie Ertrag aus dem Solarpanel erzielt.
-#Außerdem lässt sich das Solarpanel auch manuell verfahren dabei können Aktuelle Ertrags Werte und Umweltdaten wie
-#Temperatur und Helligkeit in einem Dashboard dargestellt werden.
-
-# Automatisches Nachführungssystem für ein Solarpanel ...
+#Automatisches Nachführungssystem für ein Solarpanel, das durch Lichtstärken Sensoren die Optimale Ausrichtung des Solarpanels findet
+#Damit den Maximalen Energie Ertrag aus dem Solarpanel erzielt.
+#Solarpanel lässt sich auch manuell verfahren.
+#Bei einer zu hohen Windgeschwindigkeit fährt das Solarpanel in Schutzstellung.
+#Temperatur und Helligkeit sowie Strom, Spannung und Leistung werden in einem Dashboard dargestellt.
+#Ersteller Fynn Bremer
+#letztes Update 04.05.2025
 
 import machine
 from machine import Pin, ADC, I2C
@@ -14,82 +15,90 @@ from umqtt.simple import MQTTClient
 from ina226 import INA226
 
 # WLAN-Konfiguration
-WIFI_SSID = "FRITZ!Box 6590 Cable Bremer"
-WIFI_PASSWORD = "Maunzi2216"
+WLAN_NAME = "FRITZ!Box 6590 Cable Bremer"       # SSID des WLANs
+WLAN_PASSWORT = "Maunzi2216"                    # Passwort für das WLAN
 
 # MQTT-Konfiguration
-MQTT_SERVER = "192.168.178.24"
-MQTT_CLIENT_ID = "solar_tracker"
-MQTT_TOPIC_COMMAND = b"solar/command"
-MQTT_TOPIC_TEMPERATURE = b"solar/temperature"
-MQTT_TOPIC_HUMIDITY = b"solar/humidity"
-MQTT_TOPIC_LIMITS = b"solar/limits"
-MQTT_TOPIC_VOLTAGE = b"solar/voltage"
-MQTT_TOPIC_CURRENT = b"solar/current"
-MQTT_TOPIC_WIND = b"solar/wind"
-MQTT_TOPIC_LDR_LEFT = b"solar/ldr/left"
-MQTT_TOPIC_LDR_RIGHT = b"solar/ldr/right"
-MQTT_TOPIC_LDR_FRONT = b"solar/ldr/front"
-MQTT_TOPIC_LDR_BACK = b"solar/ldr/back"
-MQTT_TOPIC_AUTOMODE = b"solar/auto_control"
-WIND_ALARM_TOPIC = b"solar/wind/alarm"
+MQTT_SERVER = "192.168.178.24"                  # Adresse des MQTT-Brokers
+MQTT_CLIENT_ID = "solar_tracker"                # Eindeutige Gerätekennung
 
-MAX_WIND_SPEED = 30.0
-WIND_ALARM_THRESHOLD = 40.0
+# MQTT-Themen (Topics)
+MQTT_TOPIC_BEFEHL = b"solar/befehl"             # Steuerbefehle
+MQTT_TOPIC_TEMPERATUR = b"solar/temperatur"     # Temperaturdaten
+MQTT_TOPIC_LUFTFEUCHTE = b"solar/luftfeuchte"   # Luftfeuchte vom AHT10
+MQTT_TOPIC_LEISTUNG = b"solar/leistung"         # Elektrische Leistung
+MQTT_TOPIC_SPANNUNG = b"solar/spannung"         # Spannung (INA226)
+MQTT_TOPIC_STROM = b"solar/strom"               # Strom (INA226)
+MQTT_TOPIC_WIND = b"solar/wind"                 # Windgeschwindigkeit
+MQTT_TOPIC_LDR_LINKS = b"solar/ldr/links"       # Lichtsensor links
+MQTT_TOPIC_LDR_RECHTS = b"solar/ldr/rechts"     # Lichtsensor rechts
+MQTT_TOPIC_LDR_VORNE = b"solar/ldr/vorne"       # Lichtsensor vorne
+MQTT_TOPIC_LDR_HINTEN = b"solar/ldr/hinten"     # Lichtsensor hinten
+MQTT_TOPIC_AUTOMATIK = b"solar/automatik"       # Automatikbetrieb ein/aus
+MQTT_TOPIC_WIND_ALARM = b"solar/wind/alarm"     # Windalarmstatus
+MQTT_TOPIC_WIND_RESET = b"solar/wind/zuruecksetzen" # Rücksetzen des Windalarms
+MQTT_TOPIC_WIND_MAX = b"solar/wind/maximal"     # Neue Grenzwerte setzen
+MQTT_TOPIC_LDR_LINKS_KAL = b"solar/ldr/links/kalibrierung" # LDR-Korrekturfaktor
 
-# Zeitstempel
-last_sensor_time = ticks_ms()
+# Wind- und Kalibriergrenzwerte
+maximale_windgeschwindigkeit = 10.0             # obere Grenze für Automatikbetrieb
+WIND_ALARM_GRENZE = 15.0                         # Windgeschwindigkeit für Alarm
+LDR_LINKS_KALIBRIERUNG = 0.95                    # Korrekturwert für linken LDR
 
-# DS18B20 Temperatursensor
+# Zeitverfolgung für Sensorintervall
+letzte_sensorzeit = ticks_ms()
+
+# Initialisierung des DS18B20 Temperatursensors
 ds_pin = Pin(41)
 ds_sensor = ds18x20.DS18X20(onewire.OneWire(ds_pin))
 roms = ds_sensor.scan()
 
-# LDRs
-LDR_LEFT = ADC(18)
-LDR_RIGHT = ADC(19)
-LDR_FRONT = ADC(2)
-LDR_BACK = ADC(4)
+# LDR-Sensoren an ADC-Pins
+LDR_LINKS = ADC(2)
+LDR_RECHTS = ADC(4)
+LDR_VORNE = ADC(18)
+LDR_HINTEN = ADC(19)
 
-# BTS7960 Steuerung
-RPWM_X = Pin(13, Pin.OUT)
-LPWM_X = Pin(11, Pin.OUT)
-RPWM_Y = Pin(12, Pin.OUT)
-LPWM_Y = Pin(14, Pin.OUT)
+# Steuerung für Aktuatoren (BTS7960 H-Brücke)
+RPWM_X = Pin(14, Pin.OUT)
+LPWM_X = Pin(12, Pin.OUT)
+RPWM_Y = Pin(13, Pin.OUT)
+LPWM_Y = Pin(11, Pin.OUT)
 
-# Wind-Sensor
+# Windsensor – Impulse zählen
 WIND_PIN = Pin(21, Pin.IN, Pin.PULL_UP)
-wind_count = 0
-last_wind_time = 0
+wind_impulse = 0
+letzte_windzeit = 0
 
+# IRQ-Handler für Windimpulse
 def wind_callback(pin):
-    global wind_count, last_wind_time
-    now = ticks_ms()
-    if ticks_diff(now, last_wind_time) > 50:
-        wind_count += 1
-        last_wind_time = now
+    global wind_impulse, letzte_windzeit
+    jetzt = ticks_ms()
+    if ticks_diff(jetzt, letzte_windzeit) > 50:  # Entprellung
+        wind_impulse += 1
+        letzte_windzeit = jetzt
 
 WIND_PIN.irq(trigger=Pin.IRQ_FALLING, handler=wind_callback)
 
-def calculate_wind_speed(pulses, interval_s):
-    rpm = pulses * (30 / interval_s)
+# Berechnung der Windgeschwindigkeit aus Impulsen
+def berechne_windgeschwindigkeit(impulse, intervall_s):
+    rpm = impulse * (30 / intervall_s)
     kmh = rpm * 0.1
     return kmh
 
-# I2C und Sensoren initialisieren
+# I2C-Bus & Sensoren initialisieren
 i2c = machine.I2C(scl=Pin(1), sda=Pin(0), freq=100000)
-AHT10_ADDR = 0x38
-i2c.writeto(AHT10_ADDR, bytearray([0xE1, 0x08, 0x00]))
+AHT10_ADRESSE = 0x38
+i2c.writeto(AHT10_ADRESSE, bytearray([0xE1, 0x08, 0x00]))  # Initialisieren
 sleep(0.05)
+ina226 = INA226(i2c, 0x40)  # Strom/Spannungssensor INA226
 
-ina226 = INA226(i2c, 0x40)
-
-# WLAN-Verbindung
+# WLAN-Verbindung aufbauen
 wlan = network.WLAN(network.STA_IF)
 wlan.active(True)
 if not wlan.isconnected():
-    print(f"Verbinde mit WLAN {WIFI_SSID}...")
-    wlan.connect(WIFI_SSID, WIFI_PASSWORD)
+    print(f"Verbinde mit WLAN {WLAN_NAME}...")
+    wlan.connect(WLAN_NAME, WLAN_PASSWORT)
     timeout = 10
     while not wlan.isconnected() and timeout > 0:
         sleep(1)
@@ -98,161 +107,187 @@ if not wlan.isconnected():
     if wlan.isconnected():
         print("WLAN verbunden, IP-Adresse:", wlan.ifconfig()[0])
     else:
-        print("WLAN-Verbindung fehlgeschlagen!")
+        print("WLAN fehlgeschlagen!")
         machine.reset()
 
-# MQTT-Verbindung
-def mqtt_connect():
+# MQTT-Verbindung und Abonnements
+def mqtt_verbinden():
     global client
     client = MQTTClient(MQTT_CLIENT_ID, MQTT_SERVER)
     client.set_callback(mqtt_callback)
     client.connect()
-    client.subscribe(MQTT_TOPIC_COMMAND + b"/#")
-    client.subscribe(MQTT_TOPIC_AUTOMODE)
-    print("MQTT verbunden.")
+    client.subscribe(MQTT_TOPIC_BEFEHL + b"/#")
+    client.subscribe(MQTT_TOPIC_AUTOMATIK)
+    client.subscribe(MQTT_TOPIC_WIND_RESET)
+    client.subscribe(MQTT_TOPIC_WIND_MAX)
+    client.subscribe(MQTT_TOPIC_LDR_LINKS_KAL)
+    print(" MQTT verbunden.")
 
-auto_mode = True
-wind_speed = 0.0
+automatik_aktiv = True
+wind_aktiv = False
+windgeschwindigkeit = 0.0
 
-def move_actuator(r_pwm, l_pwm, direction, duration=0.5):
+# Steuerung der Motoren über Richtungsparameter
+def bewege_aktor(r_pwm, l_pwm, richtung, dauer=0.5):
     r_pwm.value(0)
     l_pwm.value(0)
     sleep(0.1)
-
-    if direction == "extend":
+    if richtung == "ausfahren":
         r_pwm.value(1)
         l_pwm.value(0)
-    elif direction == "retract":
+    elif richtung == "einfahren":
         r_pwm.value(0)
         l_pwm.value(1)
-    else:
-        r_pwm.value(0)
-        l_pwm.value(0)
-
-    sleep(duration)
+    sleep(dauer)
     r_pwm.value(0)
     l_pwm.value(0)
 
+# MQTT-Ereignisbehandlung
 def mqtt_callback(topic, msg):
-    global auto_mode
-    print(f"Nachricht erhalten: {topic.decode()} - {msg.decode()}")
+    global automatik_aktiv, wind_aktiv, maximale_windgeschwindigkeit
+    print(f" Nachricht: {topic.decode()} - {msg.decode()}")
 
-    if topic == MQTT_TOPIC_AUTOMODE:
-        if msg.decode().lower() == "on":
-            auto_mode = True
-            print("Automatik EIN")
-        elif msg.decode().lower() == "off":
-            auto_mode = False
-            print("Automatik AUS")
+    if topic == MQTT_TOPIC_AUTOMATIK:
+        automatik_aktiv = msg.decode().lower() == "on"
+        print("Automatik:", "EIN" if automatik_aktiv else "AUS")
 
-    if topic == b"solar/command/move/x/left":
-        move_actuator(RPWM_X, LPWM_X, "extend", duration=10)
-    elif topic == b"solar/command/move/x/right":
-        move_actuator(RPWM_X, LPWM_X, "retract", duration=10)
-    elif topic == b"solar/command/move/y/up":
-        move_actuator(RPWM_Y, LPWM_Y, "extend", duration=10)
-    elif topic == b"solar/command/move/y/down":
-        move_actuator(RPWM_Y, LPWM_Y, "retract", duration=10)
+    if topic == b"solar/befehl/bewege/x/links":
+        bewege_aktor(RPWM_X, LPWM_X, "ausfahren", 10)
+    elif topic == b"solar/befehl/bewege/x/rechts":
+        bewege_aktor(RPWM_X, LPWM_X, "einfahren", 10)
+    elif topic == b"solar/befehl/bewege/y/hoch":
+        bewege_aktor(RPWM_Y, LPWM_Y, "ausfahren", 10)
+    elif topic == b"solar/befehl/bewege/y/runter":
+        bewege_aktor(RPWM_Y, LPWM_Y, "einfahren", 10)
 
-mqtt_connect()
+    if topic == MQTT_TOPIC_WIND_RESET and wind_aktiv:
+        print("Wind-Reset empfangen - Automatik reaktiviert.")
+        automatik_aktiv = True
+        wind_aktiv = False
+        client.publish(MQTT_TOPIC_WIND_ALARM, b"OK")
 
-# AHT10 auslesen
-def read_aht10():
+    if topic == MQTT_TOPIC_WIND_MAX:
+        try:
+            neue_grenze = float(msg.decode())
+            maximale_windgeschwindigkeit = neue_grenze
+            print(f"Neue max. Windgeschwindigkeit: {maximale_windgeschwindigkeit} km/h")
+        except ValueError:
+            print("Ungültiger Wert für Windgrenze:", msg)
+
+    if topic == MQTT_TOPIC_LDR_LINKS_KAL:
+        try:
+            neuer_faktor = float(msg.decode())
+            if 0.5 <= neuer_faktor <= 1.5:
+                global LDR_LINKS_KALIBRIERUNG
+                LDR_LINKS_KALIBRIERUNG = neuer_faktor
+                print(f" Kalibrierung LDR links: {LDR_LINKS_KALIBRIERUNG:.2f}")
+            else:
+                print(" Kalibrierungswert außerhalb von 0.5–1.5!")
+        except ValueError:
+            print(" Ungültiger Kalibrierungswert:", msg)
+
+mqtt_verbinden()
+
+# Temperatur und Luftfeuchte vom AHT10 auslesen
+def lese_aht10():
     try:
-        i2c.writeto(AHT10_ADDR, b'\xAC\x33\x00')
+        i2c.writeto(AHT10_ADRESSE, b'\xAC\x33\x00')
         sleep(0.1)
-        d = i2c.readfrom(AHT10_ADDR, 6)
+        daten = i2c.readfrom(AHT10_ADRESSE, 6)
 
-        if d[0] & 0x08 != 0x08:
+        if daten[0] & 0x08 != 0x08:
             print("Sensor nicht bereit")
             return
 
-        rf = ((d[1] << 16) | (d[2] << 8) | d[3]) >> 4
-        rt = ((d[3] & 0x0F) << 16) | (d[4] << 8) | d[5]
+        roh_feuchte = ((daten[1] << 16) | (daten[2] << 8) | daten[3]) >> 4
+        roh_temp = ((daten[3] & 0x0F) << 16) | (daten[4] << 8) | daten[5]
 
-        feuchte = round((rf / 1048576) * 100, 1)
-        temp = round((rt / 1048576) * 200 - 50, 1)
+        feuchte = round((roh_feuchte / 1048576) * 100, 1)
+        temperatur = round((roh_temp / 1048576) * 200 - 50, 1)
 
-        print("Temp:", temp, "°C  Feuchte:", feuchte, "%")
-        client.publish(MQTT_TOPIC_TEMPERATURE, str(temp))
-        client.publish(MQTT_TOPIC_HUMIDITY, str(feuchte))
+        print("️ Temperatur:", temperatur, "°C  Feuchte:", feuchte, "%")
+        client.publish(MQTT_TOPIC_TEMPERATUR, str(temperatur))
+        client.publish(MQTT_TOPIC_LUFTFEUCHTE, str(feuchte))
     except Exception as e:
-        print("Fehler beim Auslesen AHT10:", e)
+        print("Fehler AHT10:", e)
 
-# Hauptschleife
+# Hauptschleife: Sensoren lesen, MQTT verarbeiten, Motoren steuern
 while True:
-    # WLAN prüfen
     if not wlan.isconnected():
-        print("WLAN-Verbindung verloren, Neustart...")
+        print(" WLAN getrennt – Neustart...")
         sleep(5)
         machine.reset()
 
-    # MQTT prüfen
     try:
-        client.check_msg()
+        client.check_msg()  # Neue MQTT-Nachrichten verarbeiten
     except Exception as e:
-        print("MQTT-Verbindung verloren:", e)
+        print(" MQTT-Fehler:", e)
         sleep(5)
         machine.reset()
 
-    current_time = ticks_ms()
+    jetzt = ticks_ms()
 
-    if ticks_diff(current_time, last_sensor_time) >= 10_000:
-        # DS18B20 Temperatur
+    if ticks_diff(jetzt, letzte_sensorzeit) >= 20_000:
+        # Temperatur DS18B20
         for rom in roms:
-            temp = ds_sensor.read_temp(rom)
-            print(f"Temperatur DS18B20: {temp:.2f}°C")
-            client.publish(MQTT_TOPIC_TEMPERATURE, f"{temp:.2f}")
+            temperatur = ds_sensor.read_temp(rom)
+            print(f" DS18B20: {temperatur:.2f} °C")
+            client.publish(MQTT_TOPIC_TEMPERATUR, f"{temperatur:.2f}")
 
-        # INA226 Werte
+        # INA226 auslesen
         try:
-            voltage = ina226.bus_voltage
-            current_ina = ina226.current / 1000
-            power = ina226.power / 1000
-
-            print(f"INA226 - Spannung: {voltage:.2f} V, Strom: {current_ina:.2f} A, Leistung: {power:.2f} W")
-            client.publish(MQTT_TOPIC_VOLTAGE, f"{voltage:.2f}")
-            client.publish(MQTT_TOPIC_CURRENT, f"{current_ina:.2f}")
-            client.publish(MQTT_TOPIC_LIMITS, f"{power:.2f}")
+            spannung = ina226.bus_voltage
+            shunt_spannung = ina226.shunt_voltage
+            shunt_widerstand = 0.002
+            strom = shunt_spannung / shunt_widerstand
+            leistung = ina226.power
+            print(f" Spannung: {spannung:.2f} V, Strom: {strom:.2f} A, Leistung: {leistung:.2f} W")
+            client.publish(MQTT_TOPIC_SPANNUNG, f"{spannung:.2f}")
+            client.publish(MQTT_TOPIC_STROM, f"{strom:.2f}")
+            client.publish(MQTT_TOPIC_LEISTUNG, f"{leistung:.2f}")
         except Exception as e:
-            print("Fehler beim INA226:", e)
+            print("Fehler INA226:", e)
 
-        # Wind
-        wind_speed = calculate_wind_speed(wind_count, 10)
-        print(f"Windgeschwindigkeit: {wind_speed:.2f} km/h")
-        client.publish(MQTT_TOPIC_WIND, f"{wind_speed:.2f}")
+        # Windgeschwindigkeit berechnen
+        windgeschwindigkeit = berechne_windgeschwindigkeit(wind_impulse, 10)
+        print(f" Windgeschwindigkeit: {windgeschwindigkeit:.2f} km/h")
+        client.publish(MQTT_TOPIC_WIND, f"{windgeschwindigkeit:.2f}")
 
-        if wind_speed > WIND_ALARM_THRESHOLD:
-            print("⚠️ STURMALARM! Wind zu stark:", wind_speed)
-            client.publish(WIND_ALARM_TOPIC, f"ALARM: {wind_speed:.2f} km/h")
-            auto_mode = False
-            move_actuator(RPWM_X, LPWM_X, "retract", duration=5)
-            move_actuator(RPWM_Y, LPWM_Y, "retract", duration=5)
+        # Windalarm auslösen
+        if windgeschwindigkeit > WIND_ALARM_GRENZE:
+            print("STURMALARM! Wind zu stark:", windgeschwindigkeit)
+            client.publish(MQTT_TOPIC_WIND_ALARM, f"ALARM: {windgeschwindigkeit:.2f} km/h")
+            automatik_aktiv = False
+            wind_aktiv = True
+            bewege_aktor(RPWM_X, LPWM_X, "einfahren", 25)
+            bewege_aktor(RPWM_Y, LPWM_Y, "einfahren", 25)
 
-        wind_count = 0
-        read_aht10()
-        last_sensor_time = current_time
+        wind_impulse = 0
+        lese_aht10()
+        letzte_sensorzeit = jetzt
+        client.publish(MQTT_TOPIC_WIND_ALARM, b"ALARM" if wind_aktiv else b"OK")
 
-    # LDRs
-    l_left = LDR_LEFT.read_u16()
-    l_right = LDR_RIGHT.read_u16()
-    l_front = LDR_FRONT.read_u16()
-    l_back = LDR_BACK.read_u16()
+    # Lichtsensoren auslesen und senden
+    l_links = LDR_LINKS.read_u16() * LDR_LINKS_KALIBRIERUNG
+    l_rechts = LDR_RECHTS.read_u16()
+    l_vorne = LDR_VORNE.read_u16()
+    l_hinten = LDR_HINTEN.read_u16()
 
-    client.publish(MQTT_TOPIC_LDR_LEFT, str(l_left))
-    client.publish(MQTT_TOPIC_LDR_RIGHT, str(l_right))
-    client.publish(MQTT_TOPIC_LDR_FRONT, str(l_front))
-    client.publish(MQTT_TOPIC_LDR_BACK, str(l_back))
+    client.publish(MQTT_TOPIC_LDR_LINKS, str(l_links))
+    client.publish(MQTT_TOPIC_LDR_RECHTS, str(l_rechts))
+    client.publish(MQTT_TOPIC_LDR_VORNE, str(l_vorne))
+    client.publish(MQTT_TOPIC_LDR_HINTEN, str(l_hinten))
 
-    if auto_mode and wind_speed < MAX_WIND_SPEED:
-        if l_left > l_right + 500:
-            move_actuator(RPWM_X, LPWM_X, "extend", duration=2)
-        elif l_right > l_left + 500:
-            move_actuator(RPWM_X, LPWM_X, "retract", duration=2)
+    # Automatische Nachführung aktivieren, falls erlaubt
+    if automatik_aktiv and windgeschwindigkeit < maximale_windgeschwindigkeit:
+        if l_links > l_rechts + 500:
+            bewege_aktor(RPWM_X, LPWM_X, "ausfahren", 2)
+        elif l_rechts > l_links + 500:
+            bewege_aktor(RPWM_X, LPWM_X, "einfahren", 2)
 
-        if l_front > l_back + 500:
-            move_actuator(RPWM_Y, LPWM_Y, "extend", duration=2)
-        elif l_back > l_front + 500:
-            move_actuator(RPWM_Y, LPWM_Y, "retract", duration=2)
+        if l_vorne > l_hinten + 500:
+            bewege_aktor(RPWM_Y, LPWM_Y, "ausfahren", 2)
+        elif l_hinten > l_vorne + 500:
+            bewege_aktor(RPWM_Y, LPWM_Y, "einfahren", 2)
 
     sleep(0.2)
