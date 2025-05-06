@@ -24,7 +24,8 @@ MQTT_CLIENT_ID = "solar_tracker"                # Eindeutige Gerätekennung
 
 # MQTT-Themen (Topics)
 MQTT_TOPIC_BEFEHL = b"solar/befehl"             # Steuerbefehle
-MQTT_TOPIC_TEMPERATUR = b"solar/temperatur"     # Temperaturdaten
+MQTT_TOPIC_TEMP_DS18B20 = b"solar/temperatur/ds18b20" #Temperatur Außen 
+MQTT_TOPIC_TEMP_AHT10   = b"solar/temperatur/aht10" # Temperatur im Schaltkasten
 MQTT_TOPIC_LUFTFEUCHTE = b"solar/luftfeuchte"   # Luftfeuchte vom AHT10
 MQTT_TOPIC_LEISTUNG = b"solar/leistung"         # Elektrische Leistung
 MQTT_TOPIC_SPANNUNG = b"solar/spannung"         # Spannung (INA226)
@@ -44,6 +45,7 @@ MQTT_TOPIC_LDR_LINKS_KAL = b"solar/ldr/links/kalibrierung" # LDR-Korrekturfaktor
 maximale_windgeschwindigkeit = 10.0             # obere Grenze für Automatikbetrieb
 WIND_ALARM_GRENZE = 15.0                         # Windgeschwindigkeit für Alarm
 LDR_LINKS_KALIBRIERUNG = 0.95                    # Korrekturwert für linken LDR
+
 
 # Zeitverfolgung für Sensorintervall
 letzte_sensorzeit = ticks_ms()
@@ -206,7 +208,7 @@ def lese_aht10():
         temperatur = round((roh_temp / 1048576) * 200 - 50, 1)
 
         print("️ Temperatur:", temperatur, "°C  Feuchte:", feuchte, "%")
-        client.publish(MQTT_TOPIC_TEMPERATUR, str(temperatur))
+        client.publish(MQTT_TOPIC_TEMP_AHT10, str(temperatur))
         client.publish(MQTT_TOPIC_LUFTFEUCHTE, str(feuchte))
     except Exception as e:
         print("Fehler AHT10:", e)
@@ -232,7 +234,7 @@ while True:
         for rom in roms:
             temperatur = ds_sensor.read_temp(rom)
             print(f" DS18B20: {temperatur:.2f} °C")
-            client.publish(MQTT_TOPIC_TEMPERATUR, f"{temperatur:.2f}")
+            client.publish(MQTT_TOPIC_TEMP_DS18B20, f"{temperatur:.2f}")
 
         # INA226 auslesen
         try:
@@ -290,4 +292,4 @@ while True:
         elif l_hinten > l_vorne + 500:
             bewege_aktor(RPWM_Y, LPWM_Y, "einfahren", 2)
 
-    sleep(0.2)
+    sleep(0.2) 
