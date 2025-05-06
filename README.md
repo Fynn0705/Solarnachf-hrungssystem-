@@ -1,2 +1,4 @@
 # Solarnachführungssystem 
- 
+
+ Das Projekt umfasst die Entwicklung eines automatisierten Nachführungssystems für ein Solarpanel, das sich optimal zur Sonne ausrichtet, um den Energieertrag zu maximieren. Die Ausrichtung erfolgt durch Auswertung von Lichtintensitäten mittels vier Lichtsensoren (LDRs), diese setzen dann die Schubmotoren in Kraft für die gewünschte Ausrichtung. Zusätzlich überwacht ein Windsensor die Windgeschwindigkeit, um bei Sturmgefahr das Panel automatisch in eine Schutzposition zu bringen.
+Ein integriertes Dashboard zeigt in Echtzeit wichtige Umweltdaten (Temperatur, Außentemperatur, Luftfeuchtigkeit, Helligkeit, Windgeschwindigkeit) sowie aktuelle Leistungswerte (Spannung, Stromstärke, Leistung) an. Die Kommunikation erfolgt über das MQTT-Protokoll. Neben dem Automatikbetrieb ist eine manuelle Steuerung des Panels über MQTT-Befehle möglich. Das System verwendet u.a. folgende Sensoren und Module: DS18B20 (Temperatur), AHT10 (Luftfeuchtigkeit), INA226 (Spannung/Strommessung) und einen Reedkontakt für die Windmessung. Die Motorsteuerung erfolgt über BTS7960 Motortreiber.
