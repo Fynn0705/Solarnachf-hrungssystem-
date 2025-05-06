@@ -1,0 +1,1690 @@
+[
+    {
+        "id": "a90c0e3509fba068",
+        "type": "tab",
+        "label": "Solartracker Dashboard",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "1b2eaf0b29a08c68",
+        "type": "mqtt in",
+        "z": "a90c0e3509fba068",
+        "name": "",
+        "topic": "solar/strom",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "02360d9680e80b99",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 160,
+        "y": 460,
+        "wires": [
+            [
+                "140f36693a8861eb"
+            ]
+        ]
+    },
+    {
+        "id": "140f36693a8861eb",
+        "type": "ui_gauge",
+        "z": "a90c0e3509fba068",
+        "name": "",
+        "group": "e12877f95ddf8a1e",
+        "order": 1,
+        "width": 3,
+        "height": 3,
+        "gtype": "donut",
+        "title": "Strom",
+        "label": "Ampere",
+        "format": "{{value}}",
+        "min": 0,
+        "max": 10,
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 570,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "51a87cafd00b78f7",
+        "type": "mqtt in",
+        "z": "a90c0e3509fba068",
+        "name": "",
+        "topic": "solar/spannung",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "02360d9680e80b99",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 800,
+        "y": 60,
+        "wires": [
+            [
+                "7d6d2f673aa1df6a",
+                "aa859aac4affd692",
+                "a7f8c2678149f624"
+            ]
+        ]
+    },
+    {
+        "id": "3911d49c0dabd271",
+        "type": "mqtt in",
+        "z": "a90c0e3509fba068",
+        "name": "",
+        "topic": "solar/temperatur/aht10",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "02360d9680e80b99",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 820,
+        "y": 220,
+        "wires": [
+            [
+                "e7d8dc55af2483ac",
+                "f3744699f8c8243f",
+                "93e3b3c24cf01d7c"
+            ]
+        ]
+    },
+    {
+        "id": "9923aac75bdef6fd",
+        "type": "mqtt in",
+        "z": "a90c0e3509fba068",
+        "name": "",
+        "topic": "b\"solar/command\"",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "02360d9680e80b99",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 510,
+        "y": 520,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7d6d2f673aa1df6a",
+        "type": "ui_gauge",
+        "z": "a90c0e3509fba068",
+        "name": "",
+        "group": "e12877f95ddf8a1e",
+        "order": 3,
+        "width": 3,
+        "height": 3,
+        "gtype": "donut",
+        "title": "Spannung",
+        "label": "Volt",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "14",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 1230,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "e7d8dc55af2483ac",
+        "type": "ui_gauge",
+        "z": "a90c0e3509fba068",
+        "name": "",
+        "group": "e12877f95ddf8a1e",
+        "order": 4,
+        "width": 3,
+        "height": 3,
+        "gtype": "donut",
+        "title": "Temperatur Steuerkasten",
+        "label": "Celsius",
+        "format": "{{value}}",
+        "min": "-10",
+        "max": "45",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 1270,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "mqtt_ldr_left",
+        "type": "mqtt in",
+        "z": "a90c0e3509fba068",
+        "name": "LDR Left",
+        "topic": "solar/ldr/links",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "02360d9680e80b99",
+        "nl": false,
+        "rap": false,
+        "inputs": 0,
+        "x": 160,
+        "y": 40,
+        "wires": [
+            [
+                "ldr_left_chart"
+            ]
+        ]
+    },
+    {
+        "id": "mqtt_ldr_right",
+        "type": "mqtt in",
+        "z": "a90c0e3509fba068",
+        "name": "LDR Right",
+        "topic": "solar/ldr/rechts",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "02360d9680e80b99",
+        "nl": false,
+        "rap": false,
+        "inputs": 0,
+        "x": 160,
+        "y": 120,
+        "wires": [
+            [
+                "ldr_right_chart"
+            ]
+        ]
+    },
+    {
+        "id": "mqtt_ldr_front",
+        "type": "mqtt in",
+        "z": "a90c0e3509fba068",
+        "name": "LDR Front",
+        "topic": "solar/ldr/vorne",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "02360d9680e80b99",
+        "nl": false,
+        "rap": false,
+        "inputs": 0,
+        "x": 160,
+        "y": 200,
+        "wires": [
+            [
+                "ldr_front_chart"
+            ]
+        ]
+    },
+    {
+        "id": "mqtt_ldr_back",
+        "type": "mqtt in",
+        "z": "a90c0e3509fba068",
+        "name": "LDR Back",
+        "topic": "solar/ldr/hinten",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "02360d9680e80b99",
+        "nl": false,
+        "rap": false,
+        "inputs": 0,
+        "x": 160,
+        "y": 280,
+        "wires": [
+            [
+                "ldr_back_chart"
+            ]
+        ]
+    },
+    {
+        "id": "ldr_left_chart",
+        "type": "ui_chart",
+        "z": "a90c0e3509fba068",
+        "name": "LDR Links",
+        "group": "1f5b6626c6ab0e65",
+        "order": 10,
+        "width": 3,
+        "height": 5,
+        "label": "LDR Links",
+        "chartType": "bar",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "45000",
+        "removeOlder": "5",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "60",
+        "cutout": 0,
+        "useOneColor": true,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 510,
+        "y": 40,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ldr_right_chart",
+        "type": "ui_chart",
+        "z": "a90c0e3509fba068",
+        "name": "LDR Rechts",
+        "group": "1f5b6626c6ab0e65",
+        "order": 11,
+        "width": 3,
+        "height": 5,
+        "label": "LDR Rechts",
+        "chartType": "bar",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "45000",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": true,
+        "useUTC": false,
+        "colors": [
+            "#ff7f0e",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 510,
+        "y": 120,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ldr_front_chart",
+        "type": "ui_chart",
+        "z": "a90c0e3509fba068",
+        "name": "LDR Vorne",
+        "group": "1f5b6626c6ab0e65",
+        "order": 12,
+        "width": 3,
+        "height": 5,
+        "label": "LDR Vorne",
+        "chartType": "bar",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "45000",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": true,
+        "useUTC": false,
+        "colors": [
+            "#2ca02c",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 510,
+        "y": 200,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ldr_back_chart",
+        "type": "ui_chart",
+        "z": "a90c0e3509fba068",
+        "name": "LDR Hinten",
+        "group": "1f5b6626c6ab0e65",
+        "order": 13,
+        "width": 3,
+        "height": 5,
+        "label": "LDR Hinten",
+        "chartType": "bar",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "45000",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": true,
+        "useUTC": false,
+        "colors": [
+            "#d62728",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 510,
+        "y": 280,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "mqtt_wind",
+        "type": "mqtt in",
+        "z": "a90c0e3509fba068",
+        "name": "Wind",
+        "topic": "solar/wind",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "02360d9680e80b99",
+        "nl": false,
+        "rap": false,
+        "inputs": 0,
+        "x": 790,
+        "y": 480,
+        "wires": [
+            [
+                "gauge_wind",
+                "bf15290f56b67771",
+                "9407f126a4108c24"
+            ]
+        ]
+    },
+    {
+        "id": "gauge_wind",
+        "type": "ui_gauge",
+        "z": "a90c0e3509fba068",
+        "name": "",
+        "group": "e12877f95ddf8a1e",
+        "order": 6,
+        "width": "6",
+        "height": "6",
+        "gtype": "gage",
+        "title": "Wind (Kmh)",
+        "label": "kmh",
+        "format": "{{value}}",
+        "min": 0,
+        "max": 30,
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 1230,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "93ce75cd47d6b1bd",
+        "type": "mqtt out",
+        "z": "a90c0e3509fba068",
+        "name": "",
+        "topic": "solar/befehl/bewege/x/links",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "02360d9680e80b99",
+        "x": 540,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "dd3e54b6164cf280",
+        "type": "mqtt out",
+        "z": "a90c0e3509fba068",
+        "name": "",
+        "topic": "solar/befehl/bewege/x/rechts",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "02360d9680e80b99",
+        "x": 540,
+        "y": 840,
+        "wires": []
+    },
+    {
+        "id": "a619f78bd4c0d1f9",
+        "type": "mqtt out",
+        "z": "a90c0e3509fba068",
+        "name": "",
+        "topic": "solar/befehl/bewege/y/hoch",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "02360d9680e80b99",
+        "x": 540,
+        "y": 760,
+        "wires": []
+    },
+    {
+        "id": "7bbaa4e706afcbe2",
+        "type": "mqtt out",
+        "z": "a90c0e3509fba068",
+        "name": "",
+        "topic": "solar/befehl/bewege/y/runter",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "02360d9680e80b99",
+        "x": 540,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "d417d6dae7151e6a",
+        "type": "ui_button",
+        "z": "a90c0e3509fba068",
+        "name": "Bewegung Runter",
+        "group": "b40705d5933c9660",
+        "order": 2,
+        "width": 3,
+        "height": 3,
+        "passthru": false,
+        "label": "Bewegung Runter",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "solar/command/move/x/right",
+        "topicType": "msg",
+        "x": 190,
+        "y": 680,
+        "wires": [
+            [
+                "7bbaa4e706afcbe2"
+            ]
+        ]
+    },
+    {
+        "id": "0e8956a7716af261",
+        "type": "ui_button",
+        "z": "a90c0e3509fba068",
+        "name": "Bewegung Hoch",
+        "group": "b40705d5933c9660",
+        "order": 1,
+        "width": 3,
+        "height": 3,
+        "passthru": false,
+        "label": "Bewegung Hoch",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "solar/command/move/y/up",
+        "topicType": "str",
+        "x": 180,
+        "y": 760,
+        "wires": [
+            [
+                "a619f78bd4c0d1f9"
+            ]
+        ]
+    },
+    {
+        "id": "6ed6c52eb775490e",
+        "type": "ui_button",
+        "z": "a90c0e3509fba068",
+        "name": "Bewegung Rechts",
+        "group": "b40705d5933c9660",
+        "order": 4,
+        "width": 3,
+        "height": 3,
+        "passthru": false,
+        "label": "Bewegung Rechts",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "solar/command/move/y/down",
+        "topicType": "str",
+        "x": 190,
+        "y": 840,
+        "wires": [
+            [
+                "dd3e54b6164cf280"
+            ]
+        ]
+    },
+    {
+        "id": "d17e4825a8c4399a",
+        "type": "ui_button",
+        "z": "a90c0e3509fba068",
+        "name": "Bewegung Links",
+        "group": "b40705d5933c9660",
+        "order": 3,
+        "width": 3,
+        "height": 3,
+        "passthru": false,
+        "label": "Bewegung Links",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "solar/command/move/x/left",
+        "topicType": "msg",
+        "x": 180,
+        "y": 600,
+        "wires": [
+            [
+                "93ce75cd47d6b1bd"
+            ]
+        ]
+    },
+    {
+        "id": "switch_auto",
+        "type": "ui_switch",
+        "z": "a90c0e3509fba068",
+        "name": "Automatiksteuerung",
+        "label": "Automatik",
+        "tooltip": "Automatische Nachführung aktivieren",
+        "group": "b40705d5933c9660",
+        "order": 5,
+        "width": 4,
+        "height": 1,
+        "passthru": true,
+        "decouple": "false",
+        "topic": "solar/auto_control",
+        "topicType": "str",
+        "style": "",
+        "onvalue": "on",
+        "onvalueType": "str",
+        "onicon": "",
+        "oncolor": "green",
+        "offvalue": "off",
+        "offvalueType": "str",
+        "officon": "",
+        "offcolor": "red",
+        "animate": true,
+        "className": "",
+        "x": 200,
+        "y": 920,
+        "wires": [
+            [
+                "a66159b8a4eb7548",
+                "51aa9acf49021a0b"
+            ]
+        ]
+    },
+    {
+        "id": "0a98e57d2f0c406c",
+        "type": "remote-access",
+        "z": "a90c0e3509fba068",
+        "confignode": "2b7c7972d8e45429",
+        "name": "solar",
+        "verbose": 0,
+        "x": 150,
+        "y": 520,
+        "wires": [
+            [],
+            []
+        ]
+    },
+    {
+        "id": "a66159b8a4eb7548",
+        "type": "mqtt out",
+        "z": "a90c0e3509fba068",
+        "name": "",
+        "topic": "solar/auto_control",
+        "qos": "0",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "02360d9680e80b99",
+        "x": 510,
+        "y": 920,
+        "wires": []
+    },
+    {
+        "id": "a5df99cb1880d1ce",
+        "type": "mqtt in",
+        "z": "a90c0e3509fba068",
+        "name": "",
+        "topic": "solar/luftfeuchte",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "02360d9680e80b99",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 820,
+        "y": 640,
+        "wires": [
+            [
+                "c06c7922f65b1a32",
+                "54976f5c8fb85912",
+                "13431a140fb4c518"
+            ]
+        ]
+    },
+    {
+        "id": "c06c7922f65b1a32",
+        "type": "ui_gauge",
+        "z": "a90c0e3509fba068",
+        "name": "",
+        "group": "e12877f95ddf8a1e",
+        "order": 2,
+        "width": "3",
+        "height": "3",
+        "gtype": "donut",
+        "title": "Luftfeuchtigkeit",
+        "label": "Feuchte",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 1240,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "aa859aac4affd692",
+        "type": "function",
+        "z": "a90c0e3509fba068",
+        "name": "function 1",
+        "func": "msg.url = \"https://api.thingspeak.com/update?api_key=UNN8RH7604U1OH7V&field2=0\" + msg.payload\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1020,
+        "y": 160,
+        "wires": [
+            [
+                "701f1ab7f9a2dc2d"
+            ]
+        ]
+    },
+    {
+        "id": "f3744699f8c8243f",
+        "type": "function",
+        "z": "a90c0e3509fba068",
+        "name": "function 2",
+        "func": "msg.url = \"https://api.thingspeak.com/update?api_key=UNN8RH7604U1OH7V&field3=0\" + msg.payload\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1020,
+        "y": 320,
+        "wires": [
+            [
+                "4d4854f21d79f946"
+            ]
+        ]
+    },
+    {
+        "id": "bf15290f56b67771",
+        "type": "function",
+        "z": "a90c0e3509fba068",
+        "name": "function 3",
+        "func": "msg.url = \"https://api.thingspeak.com/update?api_key=UNN8RH7604U1OH7V&field1=0\" + msg.payload\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1020,
+        "y": 580,
+        "wires": [
+            [
+                "c277db90c74f486c"
+            ]
+        ]
+    },
+    {
+        "id": "701f1ab7f9a2dc2d",
+        "type": "http request",
+        "z": "a90c0e3509fba068",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1250,
+        "y": 160,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4d4854f21d79f946",
+        "type": "http request",
+        "z": "a90c0e3509fba068",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": false,
+        "url": "",
+        "persist": false,
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1230,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c277db90c74f486c",
+        "type": "http request",
+        "z": "a90c0e3509fba068",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": false,
+        "url": "",
+        "persist": false,
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1230,
+        "y": 580,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "54976f5c8fb85912",
+        "type": "function",
+        "z": "a90c0e3509fba068",
+        "name": "function 4",
+        "func": "msg.url = \"https://api.thingspeak.com/update?api_key=UNN8RH7604U1OH7V&field4=0\" + msg.payload\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1040,
+        "y": 740,
+        "wires": [
+            [
+                "9035e27c65d3d43a"
+            ]
+        ]
+    },
+    {
+        "id": "9035e27c65d3d43a",
+        "type": "http request",
+        "z": "a90c0e3509fba068",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1230,
+        "y": 740,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "MQTT_IN_WIND_ALARM",
+        "type": "mqtt in",
+        "z": "a90c0e3509fba068",
+        "name": "Wind Alarm",
+        "topic": "solar/wind/alarm",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "02360d9680e80b99",
+        "nl": false,
+        "rap": false,
+        "rh": 0,
+        "inputs": 0,
+        "x": 830,
+        "y": 800,
+        "wires": [
+            [
+                "e4c55208f3ee686d"
+            ]
+        ]
+    },
+    {
+        "id": "7c478ac5ce05f4b5",
+        "type": "ui_button",
+        "z": "a90c0e3509fba068",
+        "name": "Sturm-Alarm Rücksetzung",
+        "group": "b40705d5933c9660",
+        "order": 6,
+        "width": "4",
+        "height": "2",
+        "passthru": false,
+        "label": " Sturm-Alarm reset",
+        "tooltip": "Setzt den Wind-Alarm zurück",
+        "color": "rot",
+        "bgcolor": "#0094ce",
+        "className": "",
+        "icon": "reset",
+        "payload": "reset",
+        "payloadType": "str",
+        "topic": "solar/wind/reset",
+        "topicType": "str",
+        "x": 870,
+        "y": 860,
+        "wires": [
+            [
+                "68173facee4e3666",
+                "171f114ce0bd4e0a"
+            ]
+        ]
+    },
+    {
+        "id": "68173facee4e3666",
+        "type": "mqtt out",
+        "z": "a90c0e3509fba068",
+        "name": "Wind Rücksetzung",
+        "topic": "solar/wind/zuruecksetzen",
+        "qos": "0",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "02360d9680e80b99",
+        "x": 1350,
+        "y": 860,
+        "wires": []
+    },
+    {
+        "id": "6151bd381af875a2",
+        "type": "ui_led",
+        "z": "a90c0e3509fba068",
+        "order": 7,
+        "group": "b40705d5933c9660",
+        "width": "2",
+        "height": "4",
+        "label": "",
+        "labelPlacement": "right",
+        "labelAlignment": "left",
+        "colorForValue": [
+            {
+                "color": "#fffafa",
+                "value": "false",
+                "valueType": "bool"
+            },
+            {
+                "color": "#fb0909",
+                "value": "true",
+                "valueType": "bool"
+            }
+        ],
+        "allowColorForValueInMessage": false,
+        "shape": "circle",
+        "showGlow": true,
+        "name": "",
+        "x": 1230,
+        "y": 800,
+        "wires": []
+    },
+    {
+        "id": "e4c55208f3ee686d",
+        "type": "function",
+        "z": "a90c0e3509fba068",
+        "name": "function 5",
+        "func": "var interval = context.get('interval') || null;\n\nif (msg.payload === \"ALARM\") {\n    if (!interval) {\n        interval = setInterval(function () {\n            node.send({ payload: true });\n            setTimeout(function () {\n                node.send({ payload: false });\n            }, 300); // LED 300ms an, dann aus\n        }, 800); // alle 800ms blinken\n        context.set('interval', interval);\n    }\n} else if (msg.payload === \"OK\") {\n    if (interval) {\n        clearInterval(interval);\n        context.set('interval', null);\n    }\n    node.send({ payload: false }); // LED aus\n}\n\nreturn null;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1020,
+        "y": 800,
+        "wires": [
+            [
+                "6151bd381af875a2"
+            ]
+        ]
+    },
+    {
+        "id": "f6d8c9052e9309aa",
+        "type": "ui_numeric",
+        "z": "a90c0e3509fba068",
+        "name": "Max Wind Geschwindigkeit",
+        "label": "Maximale Windgeschwindigkeit",
+        "tooltip": "Setze den Schwellenwert zur Windabschaltung",
+        "group": "b40705d5933c9660",
+        "order": 8,
+        "width": 6,
+        "height": "2",
+        "wrap": false,
+        "passthru": true,
+        "topic": "",
+        "topicType": "str",
+        "format": "{{value}} km/h",
+        "min": 5,
+        "max": "50",
+        "step": "1",
+        "className": "",
+        "x": 880,
+        "y": 980,
+        "wires": [
+            [
+                "ce057e1bfb03bdaa"
+            ]
+        ]
+    },
+    {
+        "id": "ce057e1bfb03bdaa",
+        "type": "function",
+        "z": "a90c0e3509fba068",
+        "name": "Setze MQTT Payload",
+        "func": "let max_wind_speed = parseFloat(msg.payload);\n\nif (!isNaN(max_wind_speed)) {\n    msg.topic = \"solar/wind/max_speed\";\n    msg.payload = max_wind_speed.toFixed(1);\n    return msg;\n} else {\n    return null;\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1120,
+        "y": 980,
+        "wires": [
+            [
+                "ef7d9f59b7adfcaa"
+            ]
+        ]
+    },
+    {
+        "id": "ef7d9f59b7adfcaa",
+        "type": "mqtt out",
+        "z": "a90c0e3509fba068",
+        "name": " Publish Maximale Windgeschwindigkeit",
+        "topic": "solar/wind/maximal",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "02360d9680e80b99",
+        "x": 1420,
+        "y": 980,
+        "wires": []
+    },
+    {
+        "id": "3803c3a7e4a85790",
+        "type": "mysql",
+        "z": "a90c0e3509fba068",
+        "mydb": "513bf9f1a4a9ec46",
+        "name": "",
+        "x": 1270,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "fc0fb790120f62fb",
+        "type": "mysql",
+        "z": "a90c0e3509fba068",
+        "mydb": "513bf9f1a4a9ec46",
+        "name": "",
+        "x": 1270,
+        "y": 260,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6c9aa4976c23fd13",
+        "type": "mysql",
+        "z": "a90c0e3509fba068",
+        "mydb": "513bf9f1a4a9ec46",
+        "name": "",
+        "x": 1270,
+        "y": 520,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f9d5155a84b28b77",
+        "type": "mysql",
+        "z": "a90c0e3509fba068",
+        "mydb": "513bf9f1a4a9ec46",
+        "name": "",
+        "x": 1270,
+        "y": 680,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a7f8c2678149f624",
+        "type": "function",
+        "z": "a90c0e3509fba068",
+        "name": "function 6",
+        "func": "let ts = new Date().toISOString().slice(0, 19).replace('T', ' ');\nlet temp = msg.payload.temperatur;\nlet hum = msg.payload.luftfeuchtigkeit;\nlet volt = msg.payload.spannung;\nlet wind = msg.payload.wind;\n\nmsg.topic = `INSERT INTO umweltdaten (timestamp, temperatur, luftfeuchtigkeit, spannung, wind) \n             VALUES ('${ts}', ${temp}, ${hum}, ${volt}, ${wind})`;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1020,
+        "y": 100,
+        "wires": [
+            [
+                "3803c3a7e4a85790"
+            ]
+        ]
+    },
+    {
+        "id": "93e3b3c24cf01d7c",
+        "type": "function",
+        "z": "a90c0e3509fba068",
+        "name": "function 7",
+        "func": "let ts = new Date().toISOString().slice(0, 19).replace('T', ' ');\nlet temp = msg.payload.temperatur;\nlet hum = msg.payload.luftfeuchtigkeit;\nlet volt = msg.payload.spannung;\nlet wind = msg.payload.wind;\n\nmsg.topic = `INSERT INTO umweltdaten (timestamp, temperatur, luftfeuchtigkeit, spannung, wind) \n             VALUES ('${ts}', ${temp}, ${hum}, ${volt}, ${wind})`;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1020,
+        "y": 260,
+        "wires": [
+            [
+                "fc0fb790120f62fb"
+            ]
+        ]
+    },
+    {
+        "id": "9407f126a4108c24",
+        "type": "function",
+        "z": "a90c0e3509fba068",
+        "name": "function 8",
+        "func": "let ts = new Date().toISOString().slice(0, 19).replace('T', ' ');\nlet temp = msg.payload.temperatur;\nlet hum = msg.payload.luftfeuchtigkeit;\nlet volt = msg.payload.spannung;\nlet wind = msg.payload.wind;\n\nmsg.topic = `INSERT INTO umweltdaten (timestamp, temperatur, luftfeuchtigkeit, spannung, wind) \n             VALUES ('${ts}', ${temp}, ${hum}, ${volt}, ${wind})`;\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1020,
+        "y": 520,
+        "wires": [
+            [
+                "6c9aa4976c23fd13"
+            ]
+        ]
+    },
+    {
+        "id": "13431a140fb4c518",
+        "type": "function",
+        "z": "a90c0e3509fba068",
+        "name": "function 9",
+        "func": "let ts = new Date().toISOString().slice(0, 19).replace('T', ' ');\nlet temp = msg.payload.temperatur;\nlet hum = msg.payload.luftfeuchtigkeit;\nlet volt = msg.payload.spannung;\nlet wind = msg.payload.wind;\n\nmsg.topic = `INSERT INTO umweltdaten (timestamp, temperatur, luftfeuchtigkeit, spannung, wind) \n             VALUES ('${ts}', ${temp}, ${hum}, ${volt}, ${wind})`;\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1040,
+        "y": 680,
+        "wires": [
+            [
+                "f9d5155a84b28b77"
+            ]
+        ]
+    },
+    {
+        "id": "586e9f9c4f090d9c",
+        "type": "ui_slider",
+        "z": "a90c0e3509fba068",
+        "name": "LDR Left Kalibration",
+        "label": "LDR LEFT Kalibrierung",
+        "tooltip": "Anpassung des LDR-Linksensors",
+        "group": "1f5b6626c6ab0e65",
+        "order": 1,
+        "width": 6,
+        "height": 1,
+        "passthru": true,
+        "outs": "all",
+        "topic": "",
+        "topicType": "str",
+        "min": 0.8,
+        "max": 1.2,
+        "step": 0.01,
+        "className": "",
+        "x": 180,
+        "y": 360,
+        "wires": [
+            [
+                "88fcd0371ecf99f0",
+                "e343fc183d772e3a"
+            ]
+        ]
+    },
+    {
+        "id": "88fcd0371ecf99f0",
+        "type": "mqtt out",
+        "z": "a90c0e3509fba068",
+        "name": "MQTT: LDR_LEFT_CAL",
+        "topic": "solar/ldr/links/kalibrierung",
+        "qos": "",
+        "retain": false,
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "02360d9680e80b99",
+        "x": 510,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "e343fc183d772e3a",
+        "type": "ui_text",
+        "z": "a90c0e3509fba068",
+        "group": "1f5b6626c6ab0e65",
+        "order": 2,
+        "width": 6,
+        "height": 1,
+        "name": "Kalibrierwert anzeigen",
+        "label": "Aktueller Faktor",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": "",
+        "color": "#000000",
+        "x": 500,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "720636f7e5859c81",
+        "type": "mqtt in",
+        "z": "a90c0e3509fba068",
+        "name": "",
+        "topic": "solar/temperatur/ds18b20",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "02360d9680e80b99",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 850,
+        "y": 400,
+        "wires": [
+            [
+                "2f475dca4ee32e1c"
+            ]
+        ]
+    },
+    {
+        "id": "2f475dca4ee32e1c",
+        "type": "ui_gauge",
+        "z": "a90c0e3509fba068",
+        "name": "",
+        "group": "e12877f95ddf8a1e",
+        "order": 5,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Außentemperatur",
+        "label": "units",
+        "format": "{{value}}",
+        "min": "-20",
+        "max": "45",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 1270,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "171f114ce0bd4e0a",
+        "type": "function",
+        "z": "a90c0e3509fba068",
+        "name": "function 10",
+        "func": "// Sofortiges Signal weiterleiten\nnode.send({ payload: true });\n\n// Nach 5 Sekunden zurücksetzen\nsetTimeout(() => {\n    node.send({ payload: false });\n}, 5000);\n\n// Damit der Button zurückspringt, dürfen beide payloads rausgehen\nreturn null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1090,
+        "y": 920,
+        "wires": [
+            [
+                "6b10cde7612bd990"
+            ]
+        ]
+    },
+    {
+        "id": "51aa9acf49021a0b",
+        "type": "function",
+        "z": "a90c0e3509fba068",
+        "name": "function 11",
+        "func": "// msg.payload enthält das Ergebnis aus der MySQL-Abfrage als Array\nlet automatik = msg.payload[0]?.automatik || 0;\n\n// Float-Zustand (1.0 = AN, 0.0 = AUS)\nif (parseFloat(automatik) === 1.0) {\n    msg.payload = true;  // Automatik AN\n} else {\n    msg.payload = false; // Automatik AUS\n}\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 370,
+        "y": 980,
+        "wires": [
+            [
+                "c037071d0ef26002"
+            ]
+        ]
+    },
+    {
+        "id": "c037071d0ef26002",
+        "type": "mysql",
+        "z": "a90c0e3509fba068",
+        "mydb": "513bf9f1a4a9ec46",
+        "name": "",
+        "x": 610,
+        "y": 980,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6b10cde7612bd990",
+        "type": "mysql",
+        "z": "a90c0e3509fba068",
+        "mydb": "513bf9f1a4a9ec46",
+        "name": "",
+        "x": 1370,
+        "y": 920,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "11f1bfe48536abb5",
+        "type": "debug",
+        "z": "a90c0e3509fba068",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1140,
+        "y": 1140,
+        "wires": []
+    },
+    {
+        "id": "ce46025a1c7c95f3",
+        "type": "mysql",
+        "z": "a90c0e3509fba068",
+        "mydb": "513bf9f1a4a9ec46",
+        "name": "",
+        "x": 1390,
+        "y": 1080,
+        "wires": [
+            []
+        ],
+        "info": "[\r\n  {\r\n    \"id\": \"1a1faccbbd0b1e5e\",\r\n    \"type\": \"inject\",\r\n    \"z\": \"main\",\r\n    \"name\": \"Beispiel-Daten senden\",\r\n    \"props\": [],\r\n    \"repeat\": \"\",\r\n    \"crontab\": \"\",\r\n    \"once\": false,\r\n    \"onceDelay\": 0.1,\r\n    \"topic\": \"\",\r\n    \"payload\": \"{\\\"timestamp\\\":\\\"2025-05-06 14:00:00\\\",\\\"temperatur\\\":23.5,\\\"luftfeuchtigkeit\\\":58.0,\\\"spannung\\\":3.8,\\\"wind\\\":1.5,\\\"AutoHand\\\":0}\",\r\n    \"payloadType\": \"json\",\r\n    \"x\": 160,\r\n    \"y\": 100,\r\n    \"wires\": [[\"63d7e1cbfe6aa1b3\"]]\r\n  },\r\n  {\r\n    \"id\": \"63d7e1cbfe6aa1b3\",\r\n    \"type\": \"function\",\r\n    \"z\": \"main\",\r\n    \"name\": \"SQL vorbereiten\",\r\n    \"func\": \"let data = msg.payload;\\n\\nmsg.topic = `\\n  INSERT INTO umweltdaten \\n  (timestamp, temperatur, luftfeuchtigkeit, spannung, wind, \\\\`Auto/Hand\\\\`) \\n  VALUES (?, ?, ?, ?, ?, ?)\\n`;\\n\\nmsg.payload = [\\n  data.timestamp,\\n  data.temperatur,\\n  data.luftfeuchtigkeit,\\n  data.spannung,\\n  data.wind,\\n  data.AutoHand\\n];\\n\\nreturn msg;\",\r\n    \"outputs\": 1,\r\n    \"noerr\": 0,\r\n    \"initialize\": \"\",\r\n    \"finalize\": \"\",\r\n    \"libs\": [],\r\n    \"x\": 370,\r\n    \"y\": 100,\r\n    \"wires\": [[\"4cc29613762ff748\"]]\r\n  },\r\n  {\r\n    \"id\": \"4cc29613762ff748\",\r\n    \"type\": \"mysql\",\r\n    \"z\": \"main\",\r\n    \"mydb\": \"e00d4b40e9e57b7f\",\r\n    \"name\": \"MySQL Umweltdaten\",\r\n    \"x\": 570,\r\n    \"y\": 100,\r\n    \"wires\": [[\"fa0e5f2357bc06b7\"]]\r\n  },\r\n  {\r\n    \"id\": \"fa0e5f2357bc06b7\",\r\n    \"type\": \"debug\",\r\n    \"z\": \"main\",\r\n    \"name\": \"SQL Ergebnis\",\r\n    \"active\": true,\r\n    \"tosidebar\": true,\r\n    \"console\": false,\r\n    \"tostatus\": false,\r\n    \"complete\": \"true\",\r\n    \"targetType\": \"full\",\r\n    \"x\": 770,\r\n    \"y\": 100,\r\n    \"wires\": []\r\n  },\r\n  {\r\n    \"id\": \"e00d4b40e9e57b7f\",\r\n    \"type\": \"MySQLdatabase\",\r\n    \"name\": \"MySQL Umweltdaten\",\r\n    \"host\": \"localhost\",\r\n    \"port\": \"3306\",\r\n    \"db\": \"umweltdaten\",\r\n    \"tz\": \"\",\r\n    \"charset\": \"UTF8\",\r\n    \"username\": \"dein_benutzername\",\r\n    \"password\": \"dein_passwort\"\r\n  }\r\n]\r\n"
+    },
+    {
+        "id": "cebf21db38981997",
+        "type": "inject",
+        "z": "a90c0e3509fba068",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "v": "{   \"timestamp\": \"2025-05-06 12:00:00\",   \"temperatur\": 24.5,   \"luftfeuchtigkeit\": 60.2,   \"spannung\": 3.7,   \"wind\": 2.1,   \"AutoHand\": 1 }",
+                "vt": "json"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 900,
+        "y": 1080,
+        "wires": [
+            [
+                "11f1bfe48536abb5",
+                "ac6e89a270191771"
+            ]
+        ]
+    },
+    {
+        "id": "ac6e89a270191771",
+        "type": "function",
+        "z": "a90c0e3509fba068",
+        "name": "function 12",
+        "func": "let data = msg.payload;\n\nmsg.topic = `\n  INSERT INTO umweltdaten \n  (timestamp, temperatur, luftfeuchtigkeit, spannung, wind, \\`Auto/Hand\\`) \n  VALUES (?, ?, ?, ?, ?, ?)\n`;\n\nmsg.payload = [\n    data.timestamp,\n    data.temperatur,\n    data.luftfeuchtigkeit,\n    data.spannung,\n    data.wind,\n    data.AutoHand\n];\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1110,
+        "y": 1080,
+        "wires": [
+            [
+                "ce46025a1c7c95f3"
+            ]
+        ]
+    },
+    {
+        "id": "c1a22f31a8b8de4d",
+        "type": "inject",
+        "z": "a90c0e3509fba068",
+        "name": "SQL Test starten",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payloadType": "date",
+        "x": 140,
+        "y": 1160,
+        "wires": [
+            [
+                "aab229f0b9f9c4d4"
+            ]
+        ]
+    },
+    {
+        "id": "7fd490e77a56f2e0",
+        "type": "mysql",
+        "z": "a90c0e3509fba068",
+        "mydb": "513bf9f1a4a9ec46",
+        "name": "Abfrage Wartung",
+        "x": 530,
+        "y": 1160,
+        "wires": [
+            [
+                "368b4724f3c118cb"
+            ]
+        ]
+    },
+    {
+        "id": "368b4724f3c118cb",
+        "type": "debug",
+        "z": "a90c0e3509fba068",
+        "name": "SQL-Ergebnis",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 760,
+        "y": 1160,
+        "wires": []
+    },
+    {
+        "id": "aab229f0b9f9c4d4",
+        "type": "function",
+        "z": "a90c0e3509fba068",
+        "name": "function 13",
+        "func": "msg.topic = \"SELECT * FROM stoerung;\";\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 1160,
+        "wires": [
+            [
+                "7fd490e77a56f2e0"
+            ]
+        ]
+    },
+    {
+        "id": "02360d9680e80b99",
+        "type": "mqtt-broker",
+        "name": "Solarnachführung1",
+        "broker": "192.168.178.24",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "e12877f95ddf8a1e",
+        "type": "ui_group",
+        "name": "Daten Solarnachführung",
+        "tab": "4989931b3e3bf6e0",
+        "order": 1,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "1f5b6626c6ab0e65",
+        "type": "ui_group",
+        "name": "LDR Anzeigen",
+        "tab": "4989931b3e3bf6e0",
+        "order": 3,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "b40705d5933c9660",
+        "type": "ui_group",
+        "name": "Manuelle Steuerung",
+        "tab": "4989931b3e3bf6e0",
+        "order": 2,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "2b7c7972d8e45429",
+        "type": "remote-config",
+        "name": "Solarnachführung",
+        "host": "localhost",
+        "protocol": "http",
+        "port": "1880",
+        "baseurl": "/ui",
+        "instancehash": "43t9nxa7rz8zl5bp8zxxu1st7ejo5gg03ad98xk7apr53mtbttvvq3l8gqmvkrur",
+        "server": "nodered04.remote-red.com",
+        "region": "de"
+    },
+    {
+        "id": "513bf9f1a4a9ec46",
+        "type": "MySQLdatabase",
+        "name": "Solartracker umweltdaten",
+        "host": "localhost",
+        "port": "3306",
+        "db": "umweltdaten",
+        "tz": "",
+        "charset": "UTF8"
+    },
+    {
+        "id": "4989931b3e3bf6e0",
+        "type": "ui_tab",
+        "name": "Home",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    }
+]
